@@ -15,38 +15,60 @@ import dashboardRoutes from "./routes/dashboardRoutes.js"
 dotenv.config();
 
 const app = express();
-
-// MIDDLEWARE
-const allowedOrigins = [
-  'http://localhost:5173', // local dev
-  'https://crmme-system.netlify.app' // production frontend
-];
-
-app.use(cors({
-  origin: function(origin, callback){
-    // allow requests with no origin like mobile apps or Postman
-    if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true // if you use cookies/auth headers
-}));
-app.use(express.json());
-
 // Create HTTP server
 const server = http.createServer(app);
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173', // dev frontend
+  process.env.FRONTEND_URL  // production frontend
+];
 
-// SOCKET.IO SERVER
-export const io = new Server(server, {
-  cors: {
-    origin:  allowedOrigins, // local dev
-  
-    methods: ["GET", "POST"]
-  }
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // allow Postman/curl
+      if (allowedOrigins.indexOf(origin) === -1) {
+        return callback(new Error('CORS not allowed'), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+// Example route
+app.post('/api/auth/register', (req, res) => {
+  // Your registration logic
+  res.json({ message: 'User registered successfully' });
 });
+
+// SOCKET.IO SETUP
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+});
+
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+
+  socket.on('message', (data) => {
+    console.log('Message received:', data);
+    io.emit('message', data); // broadcast to all clients
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
+  });
+});
+app.use(express.json());
+
+
+
 
 // SOCKET CONNECT
 io.on("connection", (socket) => {
