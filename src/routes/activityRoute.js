@@ -48,4 +48,9 @@ router.get("/:leadId", authenticate, async (req, res) => {
   }
 });
 
+
+io.on("some-event", (data) => {
+  console.log(data);
+});
+
 export default router;
