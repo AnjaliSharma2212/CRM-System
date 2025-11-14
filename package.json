@@ -1,0 +1,56 @@
+{
+  "name": "crm",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000C\u0000R\u0000M\u0000-\u0000S\u0000y\u0000s\u0000t\u0000e\u0000m\u0000\r\u0000 \u0000#\u0000 \u0000C\u0000R\u0000M\u0000-\u0000S\u0000y\u0000s\u0000t\u0000e\u0000m\u0000\r\u0000 \u0000#\u0000 \u0000C\u0000R\u0000M\u0000-\u0000S\u0000y\u0000s\u0000t\u0000e\u0000m\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnjaliSharma2212/CRM-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/AnjaliSharma2212/CRM-System/issues"
+  },
+  "homepage": "https://github.com/AnjaliSharma2212/CRM-System#readme",
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "bcryptjs": "^3.0.3",
+    "bullmq": "^5.63.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.8.2",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.10",
+    "nodemon": "^3.1.11",
+    "pg": "^8.16.3",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.5",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.10.1",
+    "@types/supertest": "^6.0.3",
+    "eslint": "^9.39.1",
+    "jest": "^30.2.0",
+    "prettier": "^3.6.2",
+    "prisma": "^6.19.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}

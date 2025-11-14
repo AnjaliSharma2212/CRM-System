@@ -1,0 +1,86 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(SALES)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leadsOwned Lead[]     @relation("LeadOwner")
+  activities Activity[]
+}
+
+model Lead {
+  id        String     @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  company   String?
+  status    LeadStatus @default(NEW)
+  source    String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deleted   Boolean    @default(false)
+
+  ownerId String?
+  owner   User?   @relation("LeadOwner", fields: [ownerId], references: [id])
+
+  activities Activity[]
+  history    LeadHistory[]
+}
+
+model Activity {
+  id        String       @id @default(uuid())
+  leadId    String
+  lead      Lead         @relation(fields: [leadId], references: [id])
+  type      ActivityType
+  note      String?
+  when      DateTime
+  createdBy String
+  createdAt DateTime     @default(now())
+  user      User?        @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model LeadHistory {
+  id        String   @id @default(uuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id])
+  action    String
+  meta      Json?
+  createdAt DateTime @default(now())
+  actorId   String
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  SALES
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  LOST
+  WON
+}
+
+enum ActivityType {
+  NOTE
+  CALL
+  MEETING
+  EMAIL
+}
