@@ -1,56 +1,51 @@
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { authenticate } from "../middleware/authMiddleware.js";
-import { io } from "../server.js";
 
-const router = express.Router();
 const prisma = new PrismaClient();
 
-// Create activity
-router.post("/", authenticate, async (req, res) => {
-  try {
-    const { leadId, type, note, when } = req.body;
+export default function activityRoutes(io) {
+  const router = express.Router();
 
-    const activity = await prisma.activity.create({
-      data: {
-        leadId,
-        type,
-        note,
-        when,
-        createdBy: req.user.id,
-        userId: req.user.id
-      }
-    });
+  // Create activity
+  router.post("/", authenticate, async (req, res) => {
+    try {
+      const { leadId, type, note, when } = req.body;
 
-    // Emit REALTIME activity update to assigned user
-    io.to(req.user.id).emit("activityCreated", {
-      message: "New activity added",
-      activity
-    });
+      const activity = await prisma.activity.create({
+        data: {
+          leadId,
+          type,
+          note,
+          when,
+          createdBy: req.user.id,
+          userId: req.user.id,
+        },
+      });
 
-    res.status(201).json(activity);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to create activity" });
-  }
-});
+      // Emit REALTIME update to the user's room
+      io.to(req.user.id).emit("activityCreated", { message: "New activity added", activity });
 
-// Fetch activity for a lead
-router.get("/:leadId", authenticate, async (req, res) => {
-  try {
-    const activities = await prisma.activity.findMany({
-      where: { leadId: req.params.leadId },
-      orderBy: { createdAt: "desc" }
-    });
+      res.status(201).json(activity);
+    } catch (err) {
+      console.error("Activity creation error:", err);
+      res.status(500).json({ message: "Failed to create activity", error: err.message });
+    }
+  });
 
-    res.json(activities);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch activities" });
-  }
-});
+  // Fetch activity for a lead
+  router.get("/:leadId", authenticate, async (req, res) => {
+    try {
+      const activities = await prisma.activity.findMany({
+        where: { leadId: req.params.leadId },
+        orderBy: { createdAt: "desc" },
+      });
+      res.json(activities);
+    } catch (err) {
+      console.error("Fetch activity error:", err);
+      res.status(500).json({ message: "Failed to fetch activities", error: err.message });
+    }
+  });
 
-
-io.on("some-event", (data) => {
-  console.log(data);
-});
-
-export default router;
+  return router;
+}
