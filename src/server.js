@@ -17,9 +17,22 @@ dotenv.config();
 const app = express();
 
 // MIDDLEWARE
+const allowedOrigins = [
+  'http://localhost:5173', // local dev
+  'https://crmme-system.netlify.app' // production frontend
+];
+
 app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
+  origin: function(origin, callback){
+    // allow requests with no origin like mobile apps or Postman
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true // if you use cookies/auth headers
 }));
 app.use(express.json());
 
@@ -29,7 +42,8 @@ const server = http.createServer(app);
 // SOCKET.IO SERVER
 export const io = new Server(server, {
   cors: {
-    origin: "https://crmme-system.netlify.app/",
+    origin:  allowedOrigins, // local dev
+  
     methods: ["GET", "POST"]
   }
 });
